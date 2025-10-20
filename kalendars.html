@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025. gada kalendārs</title>
+    <style>
+        /* CSS Stili */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        #calendar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 300px min platums katram mēnesim */
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-calendar {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .month-title {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .calendar-table th, .calendar-table td {
+            text-align: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .calendar-table th {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        /* Svētdienas izcelšana */
+        .calendar-table td:last-child {
+            color: #e74c3c; /* Sarkana krāsa svētdienai */
+            font-weight: bold;
+        }
+        
+        /* Brīvdienu izcelšana (Sestdiena) - Atkarīgs no tā, vai tu vēlies Sestdienu izcelt */
+        .calendar-table th:nth-child(6),
+        .calendar-table td:nth-child(6) {
+             /* color: #f39c12; */ /* Dzeltenīga krāsa sestdienai, ja nepieciešams */
+        }
+        
+        .empty-day {
+            background-color: #f9f9f9;
+            visibility: hidden; /* Padarīt tukšās rūtis neredzamas */
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>2025. gada kalendārs</h1>
+
+    <div id="calendar-container">
+        </div>
+
+    <script>
+        // JavaScript kods kalendāra ģenerēšanai
+
+        /**
+         * Funkcija, kas ģenerē HTML tabulu konkrētam mēnesim un gadam.
+         * @param {number} year - Gads (šajā gadījumā 2025).
+         * @param {number} monthIndex - Mēneša indekss (0 = Janvāris, 11 = Decembris).
+         */
+        function generateMonthCalendar(year, monthIndex) {
+            const date = new Date(year, monthIndex, 1);
+            const monthNames = [
+                "Janvāris", "Februāris", "Marts", "Aprīlis", "Maijs", "Jūnijs",
+                "Jūlijs", "Augusts", "Septembris", "Oktobris", "Novembris", "Decembris"
+            ];
+            
+            // Nedēļas dienas (Pirmdiena - Svētdiena)
+            const dayNames = ["Pr", "Ot", "Tr", "Ce", "Pk", "Se", "Sv"];
+
+            // Noskaidro mēneša pēdējo datumu
+            const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+            
+            // Atrod mēneša pirmo dienu
+            let firstDayOfWeek = date.getDay(); 
+            // Pārveido, lai Pirmdiena būtu 0, Svētdiena 6 (standarts Latvijā)
+            firstDayOfWeek = (firstDayOfWeek === 0) ? 6 : firstDayOfWeek - 1; 
+
+            let html = `
+                <div class="month-calendar">
+                    <h2 class="month-title">${monthNames[monthIndex]} ${year}</h2>
+                    <table class="calendar-table">
+                        <thead>
+                            <tr>
+                                ${dayNames.map(day => `<th>${day}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+            `;
+
+            // 1. Aizpilda tukšās rūtis pirms mēneša sākuma
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                html += `<td class="empty-day"></td>`;
+            }
+
+            // 2. Aizpilda ar dienām
+            let dayCount = firstDayOfWeek;
+            for (let day = 1; day <= daysInMonth; day++) {
+                if (dayCount % 7 === 0) {
+                    html += `</tr><tr>`; // Sākt jaunu rindu
+                }
+                
+                html += `<td>${day}</td>`;
+                dayCount++;
+            }
+
+            // 3. Aizpilda tukšās rūtis pēc mēneša beigām
+            while (dayCount % 7 !== 0) {
+                html += `<td class="empty-day"></td>`;
+                dayCount++;
+            }
+            
+            html += `
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        // Galvenā funkcija, kas ģenerē visu 2025. gadu
+        function generate2025Calendar() {
+            const container = document.getElementById('calendar-container');
+            let fullCalendarHtml = '';
+            const year = 2025;
+            
+            // Cikls no 0 (Janvāris) līdz 11 (Decembris)
+            for (let month = 0; month < 12; month++) {
+                fullCalendarHtml += generateMonthCalendar(year, month);
+            }
+            
+            container.innerHTML = fullCalendarHtml;
+        }
+
+        // Izsauc funkciju, lai palaistu kalendāra ģenerēšanu
+        generate2025Calendar();
+    </script>
+
+</body>
+</html>
